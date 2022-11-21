@@ -32,6 +32,7 @@ force = args["forceresize"]
 generatesize = args["generatesize"]
 jobs = args["threads"]
 
+# warns you if you use generatesize when you don't the forceresize option to true
 if generatesize >= 0 and force == False:
 	print("[WARN] the 'generatesize' argument requires 'forceresize' argmument to be True")
 
@@ -40,8 +41,6 @@ print("[INFO] describing images...")
 data = LoadDataset()
 
 train_test_split_size = 0.3
-
-label = ['Healthy','LeafBlast']
 
 rawImages, features, labels = data.load(pathes, verbose = 50, forceResize = force, genLimit = generatesize)
 
@@ -56,8 +55,8 @@ print("[INFO] calculating knn algorithm...")
 print("[INFO] train-test split ratio: {:.0f}/{:.0f}".format((1 - train_test_split_size) * 100, train_test_split_size * 100))
 
 # print("[INFO] calculating best parameters for the classifier...")
-# gridSearch(trainImg, trainImgLabel, cv = 5, jobs = jobs)
-# gridSearch(trainFeature, trainFeatureLabel, cv = 5, jobs = jobs)
+# gridSearch(trainImg, np.ravel(trainImgLabel), cv = 5, jobs = jobs)
+# gridSearch(trainFeature, np.ravel(trainFeatureLabel), cv = 5, jobs = jobs)
 
 # note: using feature histogram is much faster and more accurate than raw image
 
