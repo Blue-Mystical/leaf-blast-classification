@@ -1,6 +1,9 @@
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import confusion_matrix
+
 from imutils import paths
 
 import numpy as np
@@ -10,6 +13,7 @@ import os
 import argparse
 
 from utils import LoadDataset
+from gridSearch import gridSearch
 
 # parse the argument
 #--dataset --k --threadcount
@@ -44,31 +48,41 @@ train_test_split_size = 0.3
 
 label = ['Healthy','LeafBlast']
 
-rawImages, features, labels = data.load(pathes, verbose = 5, forceResize = force, genLimit = generatesize)
+rawImages, features, labels = data.load(pathes, verbose = 50, forceResize = force, genLimit = generatesize)
 
 # TODO: ADD PREPROCESSING METHODS
 
 # TODO: THRESHOLDING WITH OTSU'S ALGORITHM
 
-
 # train test
 # , random_state=4
 (trainImg, testImg, trainImgLabel, testImgLabel) = train_test_split(
 	rawImages, labels, test_size = train_test_split_size)
-(trainFeature, testFeature, trainFeatureLabels, testFeatureLabels) = train_test_split(
+(trainFeature, testFeature, trainFeatureLabel, testFeatureLabel) = train_test_split(
 	features, labels, test_size = train_test_split_size)
-
-# TODO: 
 
 print("[INFO] calculating knn algorithm...")
 print("[INFO] train-test split ratio: {:.0f}/{:.0f}".format((1 - train_test_split_size) * 100, train_test_split_size * 100))
-model = KNeighborsClassifier(n_neighbors = k, n_jobs=jobs)
-# model.fit(trainImg, trainImgLabel)
 
-# accuracy = model.score(testImg, testImgLabel)
-# print("[INFO] raw accuracy: {:.2f}%".format(accuracy * 100))
+print("[INFO] calculating best parameters for the classifier...")
+gridSearch(trainImg, trainImgLabel, cv = 25, jobs = jobs)
+gridSearch(trainFeature, trainFeatureLabel, cv = 25, jobs = jobs)
+# note: using feature histogram is much faster and more accurate than raw image
 
-cv_scores = cross_val_score(model, trainImg, trainImgLabel, cv = 5)
-print("[INFO] cross validation accuracy across 5 predictions: ")
-print(cv_scores)
-print("[INFO] average accuracy: {}".format(np.mean(cv_scores)))
+# # test with the raw images
+# print("[INFO] evaluating raw image accuracy...")
+# model_raw = KNeighborsClassifier(n_neighbors = k, n_jobs = jobs, weights = 'uniform', metric = 'manhattan')
+# cv_scores = cross_val_score(model_raw, trainImg, trainImgLabel, cv = 5)
+# print("[INFO] cross validation accuracy across 5 predictions: ")
+# print(cv_scores)
+# print("[INFO] raw image average accuracy: {}".format(np.mean(cv_scores)))
+
+# print("---------------------------------------")
+
+# # test with color histogram
+# print("[INFO] evaluating histogram accuracy...")
+# model_feat = KNeighborsClassifier(n_neighbors = k, n_jobs = jobs, weights = 'uniform', metric = 'manhattan')
+# cv_scores = cross_val_score(model_feat, trainFeature, trainFeatureLabel, cv = 5)
+# print("[INFO] cross validation accuracy across 5 predictions: ")
+# print(cv_scores)
+# print("[INFO] raw image average accuracy: {}".format(np.mean(cv_scores)))
