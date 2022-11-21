@@ -1,15 +1,10 @@
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import train_test_split
-from sklearn.model_selection import GridSearchCV
-from sklearn.metrics import confusion_matrix
 
-from imutils import paths
+from sklearn.metrics import confusion_matrix, classification_report
 
 import numpy as np
-import cv2
-import imutils
-import os
 import argparse
 
 from utils import LoadDataset
@@ -50,10 +45,6 @@ label = ['Healthy','LeafBlast']
 
 rawImages, features, labels = data.load(pathes, verbose = 50, forceResize = force, genLimit = generatesize)
 
-# TODO: ADD PREPROCESSING METHODS
-
-# TODO: THRESHOLDING WITH OTSU'S ALGORITHM
-
 # train test
 # , random_state=4
 (trainImg, testImg, trainImgLabel, testImgLabel) = train_test_split(
@@ -64,25 +55,68 @@ rawImages, features, labels = data.load(pathes, verbose = 50, forceResize = forc
 print("[INFO] calculating knn algorithm...")
 print("[INFO] train-test split ratio: {:.0f}/{:.0f}".format((1 - train_test_split_size) * 100, train_test_split_size * 100))
 
-print("[INFO] calculating best parameters for the classifier...")
-gridSearch(trainImg, trainImgLabel, cv = 25, jobs = jobs)
-gridSearch(trainFeature, trainFeatureLabel, cv = 25, jobs = jobs)
+# print("[INFO] calculating best parameters for the classifier...")
+# gridSearch(trainImg, trainImgLabel, cv = 5, jobs = jobs)
+# gridSearch(trainFeature, trainFeatureLabel, cv = 5, jobs = jobs)
+
 # note: using feature histogram is much faster and more accurate than raw image
 
-# # test with the raw images
-# print("[INFO] evaluating raw image accuracy...")
-# model_raw = KNeighborsClassifier(n_neighbors = k, n_jobs = jobs, weights = 'uniform', metric = 'manhattan')
-# cv_scores = cross_val_score(model_raw, trainImg, trainImgLabel, cv = 5)
-# print("[INFO] cross validation accuracy across 5 predictions: ")
-# print(cv_scores)
-# print("[INFO] raw image average accuracy: {}".format(np.mean(cv_scores)))
+cv = 5
 
-# print("---------------------------------------")
+print("----------------[TRAIN RAW IMAGE]------------------")
 
-# # test with color histogram
-# print("[INFO] evaluating histogram accuracy...")
-# model_feat = KNeighborsClassifier(n_neighbors = k, n_jobs = jobs, weights = 'uniform', metric = 'manhattan')
-# cv_scores = cross_val_score(model_feat, trainFeature, trainFeatureLabel, cv = 5)
-# print("[INFO] cross validation accuracy across 5 predictions: ")
-# print(cv_scores)
-# print("[INFO] raw image average accuracy: {}".format(np.mean(cv_scores)))
+# test with the raw images
+print("[INFO] evaluating raw image accuracy...")
+model_raw = KNeighborsClassifier(n_neighbors = k, n_jobs = jobs, weights = 'uniform', metric = 'manhattan')
+
+cv_score_accuracy = cross_val_score(model_raw, trainImg, np.ravel(trainImgLabel) , cv = cv)
+print("[INFO] cross validation accuracy: ")
+print(cv_score_accuracy)
+print("[INFO] raw image average accuracy: {}".format(np.mean(cv_score_accuracy)))
+
+cv_score_recall = cross_val_score(model_raw, trainFeature, np.ravel(trainFeatureLabel), cv = cv, scoring='recall')
+print("[INFO] cross validation recall: ")
+print(cv_score_recall)
+print("[INFO] raw image average recall: {}".format(np.mean(cv_score_recall)))
+
+cv_score_precision = cross_val_score(model_raw, trainFeature, np.ravel(trainFeatureLabel), cv = cv, scoring='precision')
+print("[INFO] cross validation precision: ")
+print(cv_score_precision)
+print("[INFO] raw image average precision: {}".format(np.mean(cv_score_precision)))
+
+print("----------------[TRAIN HISTOGRAM]------------------")
+
+# test with color histogram
+print("[INFO] evaluating histogram accuracy...")
+model_feat = KNeighborsClassifier(n_neighbors = k, n_jobs = jobs, weights = 'uniform', metric = 'manhattan')
+
+cv_score_accuracy = cross_val_score(model_feat, trainFeature, np.ravel(trainFeatureLabel), cv = cv)
+print("[INFO] cross validation accuracy: ")
+print(cv_score_accuracy)
+print("[INFO] histogram average accuracy: {}".format(np.mean(cv_score_accuracy)))
+
+cv_score_recall = cross_val_score(model_feat, trainFeature, np.ravel(trainFeatureLabel), cv = cv, scoring='recall')
+print("[INFO] cross validation recall: ")
+print(cv_score_recall)
+print("[INFO] histogram average recall: {}".format(np.mean(cv_score_recall)))
+
+cv_score_precision = cross_val_score(model_feat, trainFeature, np.ravel(trainFeatureLabel), cv = cv, scoring='precision')
+print("[INFO] cross validation precision: ")
+print(cv_score_precision)
+print("[INFO] histogram average precision: {}".format(np.mean(cv_score_precision)))
+
+print("----------------[TEST RAW IMAGE]------------------")
+
+model_raw_fit = model_raw.fit(trainImg, np.ravel(trainImgLabel))
+test_accuracy = model_raw.predict(testImg)
+
+print(classification_report(testImgLabel, test_accuracy, target_names=data.labelClasses))
+print(confusion_matrix(testImgLabel, test_accuracy))
+
+print("----------------[TEST HISTOGRAM]------------------")
+
+model_hist_fit = model_feat.fit(trainFeature, np.ravel(trainFeatureLabel))
+test_accuracy = model_feat.predict(testFeature)
+
+print(classification_report(testFeatureLabel, test_accuracy, target_names=data.labelClasses))
+print(confusion_matrix(testFeatureLabel, test_accuracy))

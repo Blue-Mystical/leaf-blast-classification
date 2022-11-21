@@ -1,9 +1,10 @@
-import sys
 import shutil
 import os
 import cv2
 import numpy as np
 import imutils
+import matplotlib.pyplot as plt
+from sklearn import preprocessing
 
 def extract_color_histogram(image, histSize=(8, 8, 8)):
 	
@@ -16,19 +17,23 @@ def extract_color_histogram(image, histSize=(8, 8, 8)):
 	# for OpenCV 3 
 	else:
 		cv2.normalize(hist, hist)
-	# flatten the histogram as the feature vector
-	return hist.flatten()
+	# returns the histogram which will flatten as the feature vector later
+	return hist
 
 class LoadDataset:
+
+    labelClasses = []
+
     def __init__(self, width = 64, height = 64):
         self.width = width
         self.height = height
+        self.labelClasses = []
 
     def load(self, pathes, verbose = -1, forceResize = False, genLimit = -1):
 
         resizedPath = 'Resized'
 
-        # initialize the raw intensities matrix, the features matrix and labels list
+        # initialize the raw image matrix, the features matrix and labels list
         rawImages = []
         features = []
         labels = []
@@ -93,24 +98,36 @@ class LoadDataset:
                 imagepath = resizedPath + '/' + folder + '/' + imagefile
 
                 image = cv2.imread(imagepath)
+                hist = extract_color_histogram(image)
+
+                flattenedImage = image.flatten()
+                flattenedHist = hist.flatten()
 
                 label = folder
 
-                flattenedImage = image.flatten()
-                hist = extract_color_histogram(image)
+                # if i == 0:
+                #     print(hist)
 
                 rawImages.append(flattenedImage)
-                features.append(hist)
+                features.append(flattenedHist)
                 labels.append(label)
 
                 # display every n image
                 if verbose > 0 and i > 0 and (i+1) % verbose == 0:
                     print("[INFO] loaded {}/{}".format(i, len(listfiles)))
 
+        # binarize the label list
+
+        lb = preprocessing.LabelBinarizer()
+        binaryLabels = lb.fit_transform(labels)
+        self.labelClasses = lb.classes_
+        print(lb.classes_)
+
         # calculate size
+
         rawImages = np.array(rawImages)
         features = np.array(features)
-        labels = np.array(labels)
+        labels = np.array(binaryLabels)
         print("[INFO] raw image list size: {:.2f}MB".format(rawImages.nbytes / (1024 * 1000.0)))
         print("[INFO] feature list size:   {:.2f}MB".format(features.nbytes / (1024 * 1000.0)))
 
