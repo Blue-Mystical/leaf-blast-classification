@@ -107,4 +107,11 @@ class LoadDataset:
                 if verbose > 0 and i > 0 and (i+1) % verbose == 0:
                     print("[INFO] loaded {}/{}".format(i, len(listfiles)))
 
-        # return (np.array(rawImages),np.array(features),np.array(labels))
+        # calculate size
+        rawImages = np.array(rawImages)
+        features = np.array(features)
+        labels = np.array(labels)
+        print("[INFO] raw image list size: {:.2f}MB".format(rawImages.nbytes / (1024 * 1000.0)))
+        print("[INFO] feature list size:   {:.2f}MB".format(features.nbytes / (1024 * 1000.0)))
+
+        return (np.array(rawImages),np.array(features),np.array(labels))

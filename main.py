@@ -30,12 +30,31 @@ pathes = args["dataset"]
 k = args["neighbors"]
 force = args["forceresize"]
 generatesize = args["generatesize"]
+jobs = args["threads"]
 
 # get the list of images
 print("[INFO] describing images...")
 data = LoadDataset()
 
+train_test_split_size = 0.3
+
 label = ['Healthy','LeafBlast']
 
-data.load(pathes, verbose = 5, forceResize = force, genLimit = generatesize)
-# rawImages, features, labels = data.load(pathes, verbose = 5, forceResize = force)
+rawImages, features, labels = data.load(pathes, verbose = 5, forceResize = force, genLimit = generatesize)
+
+# TODO: ADD PREPROCESSING METHODS
+
+# TODO: THRESHOLDING WITH OTSU'S ALGORITHM
+
+# train test
+(trainImg, testImg, trainImgLabel, testImgLabel) = train_test_split(
+	rawImages, labels, test_size = train_test_split_size, random_state=31)
+(trainFeature, testFeature, trainFeatureLabels, testFeatureLabels) = train_test_split(
+	features, labels, test_size = train_test_split_size, random_state=31)
+
+print("[INFO] calculating knn algorithm...")
+print("[INFO] train-test split ratio: {:.0f}/{:.0f}".format((1 - train_test_split_size) * 100, train_test_split_size * 100))
+model = KNeighborsClassifier(n_neighbors = k, n_jobs=jobs)
+model.fit(trainImg, trainImgLabel)
+accuracy = model.score(testImg, testImgLabel)
+print("[INFO] raw accuracy: {:.2f}%".format(accuracy * 100))
