@@ -9,6 +9,7 @@ import argparse
 
 from utils import LoadDataset
 from gridSearch import gridSearch
+from models import ClassificationModel
 
 # parse the argument
 #--dataset --k --threadcount
@@ -17,9 +18,9 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--dataset", required=True,
 	help="path to input dataset")
 ap.add_argument("-k", "--neighbors", type=int, default=1,
-	help="number of nearest neighbors (default is 1)")
+	help="number of nearest neighbors only for KNN (default is 1)")
 ap.add_argument("-t", "--threads", type=int, default=-1,
-	help="number of threads for k-NN distance (default is -1 and uses maximum threads)")
+	help="number of threads (default is -1 and uses maximum threads)")
 ap.add_argument("-f", "--forceresize", type=bool, default=False,
 	help="whether to force generate a resized dataset folder even if there's one already")
 ap.add_argument("-g", "--generatesize", type=int, default=-1,
@@ -43,6 +44,7 @@ data = LoadDataset()
 train_test_split_size = 0.3
 
 rawImages, features, labels = data.load(pathes, verbose = 50, forceResize = force, genLimit = generatesize)
+labelList = data.labelClasses
 
 # train test
 # , random_state=4
@@ -51,7 +53,6 @@ rawImages, features, labels = data.load(pathes, verbose = 50, forceResize = forc
 (trainFeature, testFeature, trainFeatureLabel, testFeatureLabel) = train_test_split(
 	features, labels, test_size = train_test_split_size)
 
-print("[INFO] calculating knn algorithm...")
 print("[INFO] train-test split ratio: {:.0f}/{:.0f}".format((1 - train_test_split_size) * 100, train_test_split_size * 100))
 
 # print("[INFO] calculating best parameters for the classifier...")
@@ -62,60 +63,13 @@ print("[INFO] train-test split ratio: {:.0f}/{:.0f}".format((1 - train_test_spli
 
 cv = 5
 
-print("----------------[TRAIN RAW IMAGE]------------------")
+mode = "knn"
 
-# test with the raw images
-print("[INFO] evaluating raw image accuracy...")
-model_raw = KNeighborsClassifier(n_neighbors = k, n_jobs = jobs, weights = 'uniform', metric = 'manhattan')
+if mode == "knn" or mode == "any":
+	knn_raw = ClassificationModel(modelType = "knn", knn_k = k, n_jobs = jobs)
+	knn_raw.train(trainImg, np.ravel(trainImgLabel), cv = 5)
+	knn_raw.test(trainImg, testImg, trainImgLabel, testImgLabel, labelList)
 
-cv_score_accuracy = cross_val_score(model_raw, trainImg, np.ravel(trainImgLabel) , cv = cv)
-print("[INFO] cross validation accuracy: ")
-print(cv_score_accuracy)
-print("[INFO] raw image average accuracy: {}".format(np.mean(cv_score_accuracy)))
-
-cv_score_recall = cross_val_score(model_raw, trainFeature, np.ravel(trainFeatureLabel), cv = cv, scoring='recall')
-print("[INFO] cross validation recall: ")
-print(cv_score_recall)
-print("[INFO] raw image average recall: {}".format(np.mean(cv_score_recall)))
-
-cv_score_precision = cross_val_score(model_raw, trainFeature, np.ravel(trainFeatureLabel), cv = cv, scoring='precision')
-print("[INFO] cross validation precision: ")
-print(cv_score_precision)
-print("[INFO] raw image average precision: {}".format(np.mean(cv_score_precision)))
-
-print("----------------[TRAIN HISTOGRAM]------------------")
-
-# test with color histogram
-print("[INFO] evaluating histogram accuracy...")
-model_feat = KNeighborsClassifier(n_neighbors = k, n_jobs = jobs, weights = 'uniform', metric = 'manhattan')
-
-cv_score_accuracy = cross_val_score(model_feat, trainFeature, np.ravel(trainFeatureLabel), cv = cv)
-print("[INFO] cross validation accuracy: ")
-print(cv_score_accuracy)
-print("[INFO] histogram average accuracy: {}".format(np.mean(cv_score_accuracy)))
-
-cv_score_recall = cross_val_score(model_feat, trainFeature, np.ravel(trainFeatureLabel), cv = cv, scoring='recall')
-print("[INFO] cross validation recall: ")
-print(cv_score_recall)
-print("[INFO] histogram average recall: {}".format(np.mean(cv_score_recall)))
-
-cv_score_precision = cross_val_score(model_feat, trainFeature, np.ravel(trainFeatureLabel), cv = cv, scoring='precision')
-print("[INFO] cross validation precision: ")
-print(cv_score_precision)
-print("[INFO] histogram average precision: {}".format(np.mean(cv_score_precision)))
-
-print("----------------[TEST RAW IMAGE]------------------")
-
-model_raw_fit = model_raw.fit(trainImg, np.ravel(trainImgLabel))
-test_accuracy = model_raw.predict(testImg)
-
-print(classification_report(testImgLabel, test_accuracy, target_names=data.labelClasses))
-print(confusion_matrix(testImgLabel, test_accuracy))
-
-print("----------------[TEST HISTOGRAM]------------------")
-
-model_hist_fit = model_feat.fit(trainFeature, np.ravel(trainFeatureLabel))
-test_accuracy = model_feat.predict(testFeature)
-
-print(classification_report(testFeatureLabel, test_accuracy, target_names=data.labelClasses))
-print(confusion_matrix(testFeatureLabel, test_accuracy))
+	knn_hist = ClassificationModel(modelType = "knn", knn_k = k, n_jobs = jobs)
+	knn_hist.train(trainFeature, np.ravel(trainFeatureLabel), cv = 5)
+	knn_hist.test(trainFeature, testFeature, trainFeatureLabel, testFeatureLabel, labelList)
