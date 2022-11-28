@@ -17,7 +17,7 @@ Arguments:
  - available models: knn, rdf, dt, svm, nb, all (run every models)  
 --threads [default: -1]: Number of threads used (-1 for all)  
 --forceresize [default: False]: Whether the program should force regenerate the resized folder  
---generatesize [default: -1]: How many images per subfolder is used to resize from the main dataset (Need forceresize = True & -1 means all image)  
+--generatesize [default: -1]: How many images per subfolder are used to resize from the main dataset (Need forceresize = True & -1 means all image)  
 --gridsearch [default: False]: If true, validates the best parameters from gridsearch.py instead of train_test normally  
 --displayimage [default: False]: if true, show an image of a raw image and a HSV image for each folder (must press any key to progress)
 

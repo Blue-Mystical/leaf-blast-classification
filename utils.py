@@ -121,7 +121,7 @@ class LoadDataset:
                 hsv, hist = extract_color_histogram(image)
 
                 # display images
-                if i == 2 and self.displayImage == True:
+                if i == 46 and self.displayImage == True:
                     cv2.namedWindow(folder + ' raw image', cv2.WINDOW_NORMAL)
                     cv2.imshow(folder + " raw image", image)
                     cv2.namedWindow(folder + ' hsv image', cv2.WINDOW_NORMAL)
