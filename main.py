@@ -13,13 +13,13 @@ ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--dataset", required=True,
 	help="path to input dataset")
 ap.add_argument("-m", "--model", default="all",
-	help="available models: all, knn, rdf, dt, svm ,nb (default to all)")
+	help="available models: all, knn, rdf, dt, svm, nb (default to all)")
 ap.add_argument("-t", "--threads", type=int, default=-1,
 	help="number of threads for knn, rdf and svm (default is -1 and uses maximum threads)")
 ap.add_argument("-f", "--forceresize", type=bool, default=False, action=argparse.BooleanOptionalAction,
 	help="whether to force generate a resized dataset folder even if there's one already")
 ap.add_argument("-g", "--generatesize", type=int, default=-1,
-	help="how many images per folder to to be resized when it should generate a resized dataset (default to all)")
+	help="how many images per subfolder to to be resized when it should generate a resized dataset (default to all)")
 ap.add_argument("-s", "--gridsearch", type=bool, default=False, action=argparse.BooleanOptionalAction,
 	help="use grid search to fine tune parameters")
 ap.add_argument("-i", "--displayimage", type=bool, default=False, action=argparse.BooleanOptionalAction,
@@ -98,21 +98,21 @@ else:
 
 		print("[INFO] -----------------KNN CLASSIFIER-----------------")
 		# gridSearch(rawImages, np.ravel(labels), cv = 5, jobs = jobs)
-		gridSearch(features, np.ravel(labels), modelType = "knn", cv = cv, jobs = jobs)
+		gridSearch(trainFeature, np.ravel(trainFeatureLabel), modelType = "knn", cv = cv, jobs = jobs)
 
 
 	if mode == "rf" or mode == "randomforest" or mode == "all":
 		print("[INFO] -----------------RANDOM FOREST CLASSIFIER-----------------")
-		gridSearch(features, np.ravel(labels), modelType = "rf", cv = 5, jobs = jobs)
+		gridSearch(trainFeature, np.ravel(trainFeatureLabel), modelType = "rf", cv = 5, jobs = jobs)
 
 	if mode == "dt" or mode == "decisiontree" or mode == "all":
 		print("[INFO] -----------------DECISION TREE CLASSIFIER-----------------")
-		gridSearch(features, np.ravel(labels), modelType = "dt", cv = cv)
+		gridSearch(trainFeature, np.ravel(trainFeatureLabel), modelType = "dt", cv = cv)
 
 	if mode == "nb" or mode == "naivebayes" or mode == "all":
 		print("[INFO] -----------------NAIVE BAYES CLASSIFIER-----------------")
-		gridSearch(features, np.ravel(labels), modelType = "nb", cv = cv)
+		gridSearch(trainFeature, np.ravel(trainFeatureLabel), modelType = "nb", cv = cv)
 
 	if mode == "svc" or mode == "svm" or mode == "all":
 		print("[INFO] -----------------SVM CLASSIFIER-----------------")
-		gridSearch(features, np.ravel(labels), modelType = "svm", cv = cv, jobs = jobs)
+		gridSearch(trainFeature, np.ravel(trainFeatureLabel), modelType = "svm", cv = cv, jobs = jobs)
