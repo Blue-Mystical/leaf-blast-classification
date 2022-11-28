@@ -18,19 +18,20 @@ class ClassificationModel:
 
     def __init__(self, modelType = "knn", n_jobs = -1):
         if modelType == "knn":
-            self.model = KNeighborsClassifier(n_neighbors = 5, n_jobs = n_jobs, weights = 'uniform', metric = 'manhattan')
+            self.model = KNeighborsClassifier(n_neighbors = 5, n_jobs = n_jobs, weights = 'distance', metric = 'manhattan')
             self.initialized = True
         elif modelType == "rf"  or modelType == "randomforest":
-            self.model = RandomForestClassifier(n_jobs= n_jobs, n_estimators=100)
+            self.model = RandomForestClassifier(n_jobs= n_jobs, bootstrap = True, max_depth = 50, 
+                max_features = 4, min_samples_leaf = 3, min_samples_split = 6, n_estimators = 200)
             self.initialized = True
         elif modelType == "dt"  or modelType == "decisiontree":
-            self.model = DecisionTreeClassifier()
+            self.model = DecisionTreeClassifier(ccp_alpha = 0.001, criterion = 'gini', max_depth = 5, max_features = 'sqrt')
             self.initialized = True
         elif modelType == "nb" or modelType == "naivebayes":
             self.model = GaussianNB()
             self.initialized = True
         elif modelType == "svm" or modelType == "svc":
-            self.model = svm.SVC()
+            self.model = svm.SVC(C = 1.5, gamma = 2, kernel = 'rbf')
             self.initialized = True
         else:
             print("[ERROR] Invalid model name identifier detected.")
