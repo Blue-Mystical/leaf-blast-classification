@@ -6,11 +6,15 @@ import imutils
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
 
+from time import time
+
 def extract_color_histogram(image, histSize=(8, 8, 8)):
 	
 	hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        
 	hist = cv2.calcHist([hsv], [0, 1, 2], None, histSize,
 		[0, 180, 0, 256, 0, 256])
+        
 	# normalizing the histogram for OpenCV 2.4.X
 	if imutils.is_cv2():
 		hist = cv2.normalize(hist)
@@ -18,15 +22,17 @@ def extract_color_histogram(image, histSize=(8, 8, 8)):
 	else:
 		cv2.normalize(hist, hist)
 	# returns the histogram which will flatten as the feature vector later
-	return hist
+	return hsv, hist
 
 class LoadDataset:
 
     labelClasses = []
 
-    def __init__(self, width = 64, height = 64):
+    # init values
+    def __init__(self, width = 256, height = 256, displayImage = False):
         self.width = width
         self.height = height
+        self.displayImage = displayImage
         self.labelClasses = []
 
     def load(self, pathes, verbose = -1, forceResize = False, genLimit = -1):
@@ -51,12 +57,17 @@ class LoadDataset:
             print("[INFO] Regenerating resized dataset...")
             os.makedirs(resizedPath)
 
+            startTime = time()
+
             for folder in mainfolder:
                 fullmainpath = os.path.join(pathes, folder)
                 listfiles = os.listdir(fullmainpath)
 
-                # for display purpose
-                genSize = min(len(listfiles), genLimit)
+                # for displaying file count
+                if genLimit > -1:
+                     genSize = min(len(listfiles), genLimit)
+                else:
+                     genSize = len(listfiles)
 
                 fullresizedfolder = os.path.join(resizedPath, folder)
                 os.makedirs(fullresizedfolder)
@@ -70,6 +81,7 @@ class LoadDataset:
 
                     # read dataset image then write a new resized image on the other folder
                     image = cv2.imread(imagepath)
+
                     resizedImage = cv2.resize(image, (self.width, self.height), interpolation=cv2.INTER_AREA)
                     cv2.imwrite(os.path.join(fullresizedfolder, imagefile), resizedImage)
 
@@ -81,8 +93,15 @@ class LoadDataset:
                         if i >= genLimit - 1:
                             break
             print("[INFO] Resize Completed.")
+            
+            endTime = time()
+            elapsed = endTime - startTime
+            print('[INFO] Time taken to resize images: %f seconds.' % elapsed)
         else:
             print("[INFO] Resized folder already found.")
+
+        # loads resized folder
+        startTime = time()
 
         resizedFolder = os.listdir(resizedPath)
 
@@ -97,17 +116,25 @@ class LoadDataset:
 
                 imagepath = resizedPath + '/' + folder + '/' + imagefile
 
+                # load image and generates a color histogram from that image
                 image = cv2.imread(imagepath)
-                hist = extract_color_histogram(image)
+                hsv, hist = extract_color_histogram(image)
 
+                # display images
+                if i == 2 and self.displayImage == True:
+                    cv2.namedWindow(folder + ' raw image', cv2.WINDOW_NORMAL)
+                    cv2.imshow(folder + " raw image", image)
+                    cv2.namedWindow(folder + ' hsv image', cv2.WINDOW_NORMAL)
+                    cv2.imshow(folder + " hsv image", hsv)
+                    print("Press any key while focusing on the image window to continue.")
+                    cv2.waitKey() 
+
+                # flatten images 
                 flattenedImage = image.flatten()
                 flattenedHist = hist.flatten()
-
                 label = folder
 
-                # if i == 0:
-                #     print(hist)
-
+                # append the lists
                 rawImages.append(flattenedImage)
                 features.append(flattenedHist)
                 labels.append(label)
@@ -117,18 +144,21 @@ class LoadDataset:
                     print("[INFO] loaded {}/{}".format(i, len(listfiles)))
 
         # binarize the label list
-
         lb = preprocessing.LabelBinarizer()
         binaryLabels = lb.fit_transform(labels)
         self.labelClasses = lb.classes_
-        print(lb.classes_)
+        print("[INFO] Available classes: ", lb.classes_)
 
-        # calculate size
-
+        # calculate array size in MB
         rawImages = np.array(rawImages)
         features = np.array(features)
         labels = np.array(binaryLabels)
         print("[INFO] raw image list size: {:.2f}MB".format(rawImages.nbytes / (1024 * 1000.0)))
         print("[INFO] feature list size:   {:.2f}MB".format(features.nbytes / (1024 * 1000.0)))
+        print("[INFO] labels list size:   {:.2f}MB".format(labels.nbytes / (1024 * 1000.0)))
+
+        endTime = time()
+        elapsed = endTime - startTime
+        print('[INFO] Time taken to load and preprocess images: %f seconds.' % elapsed)
 
         return (np.array(rawImages),np.array(features),np.array(labels))

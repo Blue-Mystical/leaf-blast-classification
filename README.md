@@ -1,6 +1,6 @@
 # leaf-blast-classification
 (Work in progress)  
-Leaf Blast Classification using KNN and other Models  
+Leaf Blast Classification using various classification models  
 CSS496 Project  
 
 The dataset is used from Kaggle:  
@@ -11,8 +11,8 @@ Only the healthy and rice blast rice dataset has been used.
 # How to use:  
 Run: python main.py --dataset Datasets  
 Optional Arguments:  
---neighbors: K count in the classification system  
---threads: Number of thread used  
+--neighbors: K neighbors in KNN
+--threads: Number of threads used  
 --forceresize: Whether the program should regenerate the resized folder  
 --generatesize: How much image is sampled from the main dataset (Currently it is not randomized)
 
