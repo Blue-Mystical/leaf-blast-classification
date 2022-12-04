@@ -1,4 +1,6 @@
 from sklearn.model_selection import train_test_split
+from imblearn.over_sampling import SMOTE
+import collections
 
 import numpy as np
 import argparse
@@ -46,12 +48,21 @@ rawImages, features, labels = data.load(pathes, verbose = 50, forceResize = forc
 labelList = data.labelClasses
 
 # train test split
-train_test_split_size = 0.3
+train_test_split_size = 0.2
 
 (trainFeature, testFeature, trainFeatureLabel, testFeatureLabel) = train_test_split(
 	features, labels, test_size = train_test_split_size)
 
 print("[INFO] train-test split ratio: {:.0f}/{:.0f}".format((1 - train_test_split_size) * 100, train_test_split_size * 100))
+
+
+oversampling_size = 1.0
+
+sm = SMOTE(random_state = 5, sampling_strategy=oversampling_size)
+trainFeatureOver, trainFeatureLabelOver = sm.fit_resample(trainFeature, trainFeatureLabel)
+
+print("Normal train data count: ", collections.Counter(np.ravel(trainFeatureLabel)))
+print("Oversampled train data count: ", collections.Counter(np.ravel(trainFeatureLabelOver)))
 
 # Main Program
 cv = 5
