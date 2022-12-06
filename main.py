@@ -56,13 +56,19 @@ train_test_split_size = 0.2
 print("[INFO] train-test split ratio: {:.0f}/{:.0f}".format((1 - train_test_split_size) * 100, train_test_split_size * 100))
 
 
-oversampling_size = 1.0
+# SMOTE oversampling
+oversample = False
 
-sm = SMOTE(random_state = 5, sampling_strategy=oversampling_size)
-trainFeatureOver, trainFeatureLabelOver = sm.fit_resample(trainFeature, trainFeatureLabel)
+if oversample == True:
+	oversampling_size = 1.0
 
-print("Normal train data count: ", collections.Counter(np.ravel(trainFeatureLabel)))
-print("Oversampled train data count: ", collections.Counter(np.ravel(trainFeatureLabelOver)))
+	print("[INFO] Oversampling data...")
+	print("[INFO] Normal train data count: ", collections.Counter(np.ravel(trainFeatureLabel)))
+
+	sm = SMOTE(random_state = 5, sampling_strategy=oversampling_size)
+	trainFeature, trainFeatureLabel = sm.fit_resample(trainFeature, trainFeatureLabel)
+
+	print("[INFO] Oversampled train data count: ", collections.Counter(np.ravel(trainFeatureLabel)))
 
 # Main Program
 cv = 5

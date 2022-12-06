@@ -153,7 +153,7 @@ class LoadDataset:
                 label = folder
 
                 # display images
-                if i == 102 and self.displayImage == True:
+                if i == 1 and self.displayImage == True:
 
                     cv2.namedWindow(folder + ' raw image', cv2.WINDOW_NORMAL)
                     cv2.imshow(folder + " raw image", image)
