@@ -1,5 +1,4 @@
 # leaf-blast-classification
-(Work in progress)  
 Leaf Blast Classification using various classification models  
 CSS496 Project  
 
