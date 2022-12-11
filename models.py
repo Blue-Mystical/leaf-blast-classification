@@ -39,7 +39,7 @@ class ClassificationModel:
     def cross_validate(self, X, y, cv):
 
         if self.initialized == True:
-            print("[INFO] evaluating raw image accuracy...")
+            print("[INFO] evaluating image accuracy in the test dataset...")
             startTime = time()
 
             cv_results = cross_validate(self.model, X, y , cv = cv, scoring=scoring)
