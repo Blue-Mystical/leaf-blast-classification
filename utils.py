@@ -3,6 +3,7 @@ import os
 import cv2
 import numpy as np
 import imutils
+import sys
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
 
@@ -32,7 +33,7 @@ def extract_color_histogram(image, histSize=(8, 8, 8)):
     else:
         cv2.normalize(hist, hist)
 
-    # masking (not used atm)
+    # masking (not used in the preprocessing atm)
     lower_mask = np.array([0, 60, 180])
     upper_mask = np.array([90, 255, 255])
 
@@ -70,12 +71,15 @@ class LoadDataset:
         features = []
         labels = []
 
-        mainfolder = os.listdir(pathes)
-
         # initialize by generating a new folder of resized image if there's none or forced to
         isExist = os.path.exists(resizedPath)
 
         if isExist == False or forceResize == True:
+            if pathes == None:
+                raise ValueError("[ERR] Cannot generate a resized folder due to the lack of --dataset argument.")
+
+            mainfolder = os.listdir(pathes)
+
             if isExist and os.path.isdir(resizedPath):
                 print("[INFO] Removing existing folder...")
                 shutil.rmtree(resizedPath)

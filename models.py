@@ -55,25 +55,6 @@ class ClassificationModel:
             print("[INFO] AVG_PRECISION\t: {0:.4}".format(np.mean(cv_results["test_precision"])))
             print("[INFO] AVG_RECALL\t: {0:.4}".format(np.mean(cv_results["test_recall"])))
             print("[INFO] AVG_F1SCORE\t: {0:.4}".format(np.mean(cv_results["test_f1_score"])))
-                
-            # print("[INFO] cross validation accuracy: ")
-            # print(['%.4f' % elem for elem in cv_score_accuracy])
-            # print("[INFO] raw image average accuracy: {0:.4}".format(np.mean(cv_score_accuracy)))
-
-            # cv_score_accuracy = cross_val_score(self.model, X, y , cv = cv)
-            # print("[INFO] cross validation accuracy: ")
-            # print(['%.4f' % elem for elem in cv_score_accuracy])
-            # print("[INFO] raw image average accuracy: {0:.4}".format(np.mean(cv_score_accuracy)))
-
-            # cv_score_recall = cross_val_score(self.model, X, y, cv = cv, scoring='recall')
-            # print("[INFO] cross validation recall: ")
-            # print(['%.4f' % elem for elem in cv_score_recall])
-            # print("[INFO] raw image average recall: {0:.4}".format(np.mean(cv_score_recall)))
-
-            # cv_score_precision = cross_val_score(self.model, X, y, cv = cv, scoring='precision')
-            # print("[INFO] cross validation precision: ")
-            # print(['%.4f' % elem for elem in cv_score_precision])
-            # print("[INFO] raw image average precision: {0:.4}".format(np.mean(cv_score_precision)))
 
             endTime = time()
             elapsed = endTime - startTime

@@ -12,14 +12,14 @@ from models import ClassificationModel
 # parse the argument
 #--dataset is required
 ap = argparse.ArgumentParser()
-ap.add_argument("-d", "--dataset", required=True,
-	help="path to input dataset")
 ap.add_argument("-m", "--model", default="all",
 	help="available models: all, knn, rdf, dt, svm, nb (default to all)")
 ap.add_argument("-t", "--threads", type=int, default=-1,
 	help="number of threads for knn, rdf and svm (default is -1 and uses maximum threads)")
 ap.add_argument("-f", "--forceresize", type=bool, default=False, action=argparse.BooleanOptionalAction,
-	help="whether to force generate a resized dataset folder even if there's one already")
+	help="whether to force generate a resized dataset folder even if there's one already [Must use --dataset or -d followed by a folder's name afterward]")
+ap.add_argument("-d", "--dataset",
+	help="path to input dataset for regenerating resized folder")
 ap.add_argument("-g", "--generatesize", type=int, default=-1,
 	help="how many images per subfolder to to be resized when it should generate a resized dataset (default to all)")
 ap.add_argument("-s", "--gridsearch", type=bool, default=False, action=argparse.BooleanOptionalAction,
@@ -28,9 +28,9 @@ ap.add_argument("-i", "--displayimage", type=bool, default=False, action=argpars
 	help="sample an image of both raw and preprocessed")
 args = vars(ap.parse_args())
 
-pathes = args["dataset"]
 mode = args["model"].lower()
 force = args["forceresize"]
+pathes = args["dataset"]
 generatesize = args["generatesize"]
 jobs = args["threads"]
 displayImage = args["displayimage"]
