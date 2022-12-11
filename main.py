@@ -80,6 +80,8 @@ if GridSearchMode == False:
 		# knn_raw.train(trainImg, np.ravel(trainImgLabel), cv = 5)
 		# knn_raw.test(trainImg, testImg, trainImgLabel, testImgLabel, labelList)
 
+		# NOTE: cross_validate is not used to fit the model. train_test is used to fit to test the result.
+
 		print("[INFO] -----------------KNN CLASSIFIER-----------------")
 		knn_hist = ClassificationModel(modelType = "knn", n_jobs = jobs)
 		knn_hist.cross_validate(trainFeature, np.ravel(trainFeatureLabel), cv = cv)
@@ -114,13 +116,13 @@ else:
 	if mode == "knn" or mode == "all":
 
 		print("[INFO] -----------------KNN CLASSIFIER-----------------")
-		# gridSearch(rawImages, np.ravel(labels), cv = 5, jobs = jobs)
+		# gridSearch(rawImages, np.ravel(labels), cv = cv, jobs = jobs)
 		gridSearch(trainFeature, np.ravel(trainFeatureLabel), modelType = "knn", cv = cv, jobs = jobs)
 
 
 	if mode == "rf" or mode == "randomforest" or mode == "all":
 		print("[INFO] -----------------RANDOM FOREST CLASSIFIER-----------------")
-		gridSearch(trainFeature, np.ravel(trainFeatureLabel), modelType = "rf", cv = 5, jobs = jobs)
+		gridSearch(trainFeature, np.ravel(trainFeatureLabel), modelType = "rf", cv = cv, jobs = jobs)
 
 	if mode == "dt" or mode == "decisiontree" or mode == "all":
 		print("[INFO] -----------------DECISION TREE CLASSIFIER-----------------")
