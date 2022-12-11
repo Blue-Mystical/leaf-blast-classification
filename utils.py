@@ -33,23 +33,8 @@ def extract_color_histogram(image, histSize=(8, 8, 8)):
     else:
         cv2.normalize(hist, hist)
 
-    # masking (not used in the preprocessing atm)
-    lower_mask = np.array([0, 60, 180])
-    upper_mask = np.array([90, 255, 255])
-
-    mask = cv2.inRange(hsv, lower_mask, upper_mask)
-
-    # Change masked spot to light yellow
-    result = image.copy()
-    result[mask > 0] = (113, 200, 200)
-
-    hsv_mask = cv2.cvtColor(result, cv2.COLOR_BGR2HSV)
-
-    hist_mask = cv2.calcHist([hsv_mask], [0, 1, 2], None, histSize,
-        [0, 180, 0, 256, 0, 256])
-
     # returns the histogram which will flatten as the feature vector later
-    return hsv, hist, mask, result, hsv_mask, hist_mask
+    return hsv, hist
 
 class LoadDataset:
 
@@ -154,12 +139,11 @@ class LoadDataset:
 
                 # load image and generates a color histogram from that image
                 image = cv2.imread(imagepath)
-                hsv, hist, mask, result, hsv_mask, hist_mask = extract_color_histogram(image)
+                hsv, hist = extract_color_histogram(image)
 
                 # flatten images 
                 flattenedImage = image.flatten()
                 flattenedHist = hist.flatten()
-                flattenedHistMask = hist_mask.flatten()
                 label = folder
 
                 # display images
@@ -169,12 +153,6 @@ class LoadDataset:
                     cv2.imshow(folder + " raw image", image)
                     cv2.namedWindow(folder + ' hsv image', cv2.WINDOW_NORMAL)
                     cv2.imshow(folder + " hsv image", hsv)
-                    # cv2.namedWindow(folder + ' mask', cv2.WINDOW_NORMAL)
-                    # cv2.imshow(folder + " mask", mask)
-                    # cv2.namedWindow(folder + ' masked raw', cv2.WINDOW_NORMAL)
-                    # cv2.imshow(folder + " masked raw", result)
-                    # cv2.namedWindow(folder + ' hsv masked', cv2.WINDOW_NORMAL)
-                    # cv2.imshow(folder + " hsv masked", hsv_mask)
                     print("Press any key while focusing on the image window to continue.")
                     cv2.waitKey() 
 
