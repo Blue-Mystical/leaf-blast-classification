@@ -107,6 +107,9 @@ class LoadDataset:
                     
                 for (i, imagefile) in enumerate(listfiles):
 
+                    if imagefile.lower().endswith(('.png', '.jpg', '.jpeg')) != True:
+                        continue
+
                     imagepath = pathes + '/' + folder + '/' + imagefile
 
                     # read dataset image then write a new resized image on the other folder
@@ -143,6 +146,9 @@ class LoadDataset:
                 print('[INFO] loading ', folder, ' ...')
                 
             for (i, imagefile) in enumerate(listfiles):
+
+                if imagefile.lower().endswith(('.png', '.jpg', '.jpeg')) != True:
+                    continue
 
                 imagepath = resizedPath + '/' + folder + '/' + imagefile
 
