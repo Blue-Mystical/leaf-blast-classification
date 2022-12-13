@@ -12,7 +12,7 @@ Regenerate a resized folder: python main.py --forceresize --dataset path/to/data
 
 Arguments:    
 --model [default: all]: Classification model to run  
- - available models: knn, rdf, dt, svm, nb, all (the latter runs every models)  
+ - available models: knn, rf, dt, svm, nb, all (the latter runs every models)  
 --threads [default: -1]: Number of jobs used (-1 for all)  
 --forceresize [default: False]: Whether the program should force regenerate the resized folder. the next argument --dataset pointing at a dataset folder is also required  
 --dataset [required with --forceresize]: Path to the dataset folder when --forceresize is True  
