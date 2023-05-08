@@ -10,7 +10,7 @@ Running the first time: python main.py --dataset path/to/datasets  (this will ta
 With resized folder: python main.py
 Regenerate a resized folder: python main.py --forceresize --dataset path/to/datasets 
 
-Arguments:    
+Arguments (if the argument is boolean, do not follow it with 'true'):    
 --model [default: all]: Classification model to run  
  - available models: knn, rf, dt, svm, nb, all (the latter runs every models)  
 --threads [default: -1]: Number of jobs used (-1 for all)  
